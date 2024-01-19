@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <title>Admin Dashboard</title>
+  </head>
+  <body>
+    <div class="container-xl">
+      <div class="table-responsive">
+        <div class="table-wrapper">
+          <div class="table-title">
+            <div class="row">
+              <h1>Name: <%= name %></h1>
+              <div class="col-sm-8">
+                <h2>User <b>Details</b></h2>
+              </div>
+              <div class="col-sm-4 text-right">
+                <button
+                  class="btn btn-primary"
+                  id="createUserBtn"
+                  data-toggle="modal"
+                  data-target="#createUserModal"
+                >
+                  Create User
+                </button>
+              </div>
+            </div>
+          </div>
+          <table class="table table-striped table-hover table-bordered">
+            <thead>
+              <tr>
+                <th>User Id</th>
+                <th>Name <i class="fa fa-sort"></i></th>
+                <th>Photo</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% users.forEach(user => { %>
+              <tr>
+                <td><%= user.userID %></td>
+                <td><%= user.name %></td>
+                <td>
+                  <img
+                    src="data:<%= user.photo.contentType %>;base64,<%= user.photo.toString('base64') %>"
+                    alt="User Photo"
+                    width="50"
+                    height="50"
+                  />
+                </td>
+                <td class="d-flex">
+                  <!-- Buttons for approval and disapproval -->
+                  <% if (user.pendingUpdates &&
+                  Object.keys(user.pendingUpdates).length > 0) { %>
+                  <!-- Approval Button -->
+                  <form
+                    class="approval-form"
+                    action="http://localhost:8080/user/update-status"
+                    method="POST"
+                  >
+                    <!-- Hidden input for adminName -->
+                    <input type="hidden" name="adminName" value="<%= name %>" />
+                    <!-- Hidden input for adminToken -->
+                    <input
+                      type="hidden"
+                      name="adminToken"
+                      value="<%= email %>"
+                    />
+                    <!-- Include the user ID as a hidden input -->
+                    <input
+                      type="hidden"
+                      name="userID"
+                      value="<%= user.userID %>"
+                    />
+                    <!-- Include a boolean indicating the approval -->
+                    <input type="hidden" name="isApproved" value="true" />
+                    <!-- Button to submit the form with the tick icon -->
+                    <button
+                      type="submit"
+                      class="btn btn-success"
+                      style="display: inline-block"
+                      data-toggle="tooltip"
+                      title="Approve"
+                    >
+                      <i class="material-icons">&#xE5CA;</i>
+                    </button>
+                  </form>
+
+                  <!-- Disapproval Button -->
+                  <form
+                    class="disapproval-form"
+                    action="http://localhost:8080/user/update-status"
+                    method="POST"
+                  >
+                    <!-- Hidden input for adminName -->
+                    <input type="hidden" name="adminName" value="<%= name %>" />
+                    <!-- Hidden input for adminToken -->
+                    <input
+                      type="hidden"
+                      name="adminToken"
+                      value="<%= email %>"
+                    />
+                    <!-- Include the user ID as a hidden input -->
+                    <input
+                      type="hidden"
+                      name="userID"
+                      value="<%= user.userID %>"
+                    />
+                    <!-- Include a boolean indicating the disapproval -->
+                    <input type="hidden" name="isApproved" value="false" />
+                    <!-- Button to submit the form with the wrong icon -->
+                    <button
+                      type="submit"
+                      class="btn btn-danger"
+                      style="display: inline-block"
+                      data-toggle="tooltip"
+                      title="Disapprove"
+                    >
+                      <i class="material-icons">&#xE5CD;</i>
+                    </button>
+                  </form>
+                  <% } %>
+
+                  <!-- Existing buttons (view, edit, delete) -->
+                  <button
+                    class="btn btn-info view-btn"
+                    data-toggle="modal"
+                    data-target="#viewUserModal<%= user.userID %>"
+                  >
+                    <i class="material-icons">&#xE417;</i>
+                  </button>
+
+                  <form
+                    class="edit-form"
+                    action="http://localhost:8080/user/default"
+                    method="POST"
+                  >
+                    <!-- Hidden input for adminName -->
+                    <input type="hidden" name="adminName" value="<%= name %>" />
+                    <!-- Hidden input for adminToken -->
+                    <input
+                      type="hidden"
+                      name="adminToken"
+                      value="<%= email %>"
+                    />
+                    <!-- Include the user ID as a hidden input -->
+                    <input
+                      type="hidden"
+                      name="userID"
+                      value="<%= user.userID %>"
+                    />
+                    <!-- Button to submit the form with the edit icon -->
+                    <button
+                      type="submit"
+                      class="btn btn-light"
+                      style="display: inline-block"
+                      data-toggle="tooltip"
+                      title="Edit"
+                    >
+                      <i class="material-icons">&#xE254;</i>
+                    </button>
+                  </form>
+
+                  <form
+                    class="delete-form"
+                    action="http://localhost:8080/user/delete-user"
+                    method="POST"
+                  >
+                    <!-- Hidden input for adminName -->
+                    <input type="hidden" name="adminName" value="<%= name %>" />
+                    <!-- Hidden input for adminToken -->
+                    <input
+                      type="hidden"
+                      name="adminToken"
+                      value="<%= email %>"
+                    />
+                    <!-- Include the user ID as a hidden input -->
+                    <input
+                      type="hidden"
+                      name="userID"
+                      value="<%= user.userID %>"
+                    />
+                    <!-- Button to submit the form with the dustbin icon -->
+                    <button
+                      type="submit"
+                      class="btn btn-danger"
+                      style="display: inline-block"
+                      data-toggle="tooltip"
+                      title="Delete"
+                    >
+                      <i class="material-icons">&#xE872;</i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              <!-- Modal for View User -->
+              <div
+                class="modal fade"
+                id="viewUserModal<%= user.userID %>"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="viewUserModalLabel"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="viewUserModalLabel">
+                        View User Details
+                      </h5>
+                      <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <!-- Display user details here -->
+                      <p>User ID: <%= user.userID %></p>
+                      <p>Name: <%= user.name %></p>
+                      <p>Password: <%= user.password %></p>
+                      <img
+                        src="data:<%= user.photo.contentType %>;base64,<%= user.photo.toString('base64') %>"
+                        alt="User Photo"
+                        width="50"
+                        height="50"
+                      />
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="createUserModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="createUserModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Form to capture password -->
+            <form
+              id="createUserForm"
+              action="http://localhost:8080/user/create-user"
+              method="POST"
+            >
+              <!-- Hidden input for adminName -->
+              <input
+                type="hidden"
+                id="adminName"
+                name="adminName"
+                value="<%= name %>"
+              />
+              <!-- Hidden input for adminToken -->
+              <input
+                type="hidden"
+                id="adminToken"
+                name="adminToken"
+                value="<%= email %>"
+              />
+              <div class="form-group">
+                <label for="password">Password:</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  required
+                />
+              </div>
+              <!-- Replace the button type from "button" to "submit" -->
+              <button type="submit" class="btn btn-primary">Create User</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const token = "<%= email %>";
+      const name = "<%= name %>";
+      localStorage.setItem("adminToken", token);
+      localStorage.setItem("adminName", name);
+
+      $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
+  </body>
+</html>
